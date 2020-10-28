@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/SeanConnolly82/projectMERN#readme",
   "dependencies": {
+    "config": "^3.3.2",
     "express": "^4.17.1",
+    "express-validator": "^6.6.1",
     "mongoose": "^5.10.11"
   },
   "devDependencies": {
