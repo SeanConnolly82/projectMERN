@@ -1,3 +1,4 @@
 {
-    "mongoURI": "mongodb+srv://dbAdmin:mongo123@projectmern.tzsaw.mongodb.net/<dbname>?retryWrites=true&w=majority"
+    "mongoURI": "mongodb+srv://dbAdmin:mongo123@projectmern.tzsaw.mongodb.net/projectMERN?retryWrites=true&w=majority",
+    "jwtSecret": "c34e6a5e679fd333f6338fae789dd00f48a2d9560b29bf0a192c127969cffbb8aea1a437eff3352d24527959bff06168cd1f8f4ca41da1bfebf1a44ae358df9e"
 }

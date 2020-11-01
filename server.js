@@ -1,8 +1,9 @@
-const express = require("express");
+const express = require('express');
 
-const userRouter = require("./api/users");
-const authRouter = require("./api/auth");
-const connectDB = require("./config/db");
+const connectDB = require('./config/db');
+const userRouter = require('./routes/users');
+const bookRouter = require('./routes/books');
+const profileRouter = require('./routes/profile');
 
 const app = express();
 
@@ -11,11 +12,11 @@ connectDB();
 
 // Init Middleware
 app.use(express.json({ extended: false }));
+app.use('/users', userRouter);
+app.use('/books', bookRouter);
+app.use('/profile', profileRouter);
 
-app.use("/users", userRouter);
-app.use("/auth", authRouter);
-
-app.get("/", (req, res) => res.send("API Running"));
+app.get('/', (req, res) => res.send('API Running'));
 
 const PORT = process.env.PORT || 5000;
 
