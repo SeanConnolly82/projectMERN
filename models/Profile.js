@@ -13,15 +13,15 @@ const profileSchema = new mongoose.Schema({
     image: {
     type: Buffer
   },
-  favouriteAuthors: {
+  favouriteAuthor: {
     type: String,
     required: true
   },
-  favouriteBooks: {
+  favouriteBook: {
     type: String,
     required: true
   },
-  genres: {
+  favouriteGenre: {
     type: String,
     required: true
   },

@@ -5,7 +5,18 @@ const config = require('config');
 const { check, validationResult } = require('express-validator/check');
 
 const userRouter = express.Router();
-const User = require('../models/Users');
+const User = require('../models/User');
+const ApiError = require('../error/ApiError');
+
+
+const getJwtToken = (user) => {
+  const payload = {
+    user: {
+      id: user.id,
+    },
+  };
+  return jwt.sign(payload, config.get('jwtSecret'), { expiresIn: 3600 });
+};
 
 userRouter.post(
   '/register',
@@ -17,7 +28,7 @@ userRouter.post(
       'Please enter a password with 6 or more characters'
     ).isLength({ min: 6 }),
   ],
-  async (req, res) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -27,17 +38,10 @@ userRouter.post(
     try {
       let user = await User.findOne({ email });
       if (user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Email already in use' }] });
+        next(ApiError.badRequest('Email already in use'));
+        return
       }
-      let checkName = await User.findOne({ name });
-      if (checkName) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Username already in use' }] });
-      }
-
+   
       user = new User({ name, email, password });
 
       const salt = await bcrypt.genSalt(10);
@@ -45,24 +49,11 @@ userRouter.post(
 
       await user.save();
 
-      const payload = {
-        user: {
-          id: user.id,
-        }
-      };
+      let token = getJwtToken(user);
+      res.json({ token });
 
-      jwt.sign(
-        payload,
-        config.get('jwtSecret'),
-        { expiresIn: 3600 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
     } catch (err) {
-      console.log(err.message);
-      res.status(500).send();
+        next(err);
     }
   }
 );
@@ -73,7 +64,7 @@ userRouter.post(
     check('email', 'Please enter a valid email').isEmail(),
     check('password', 'Please enter a password').not().isEmpty(),
   ],
-  async (req, res) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -82,32 +73,17 @@ userRouter.post(
 
     try {
       const user = await User.findOne({ email });
-      const isMatch = await bcrypt.compare(password, user.password);
+      
+      if (!user || !await bcrypt.compare(password, user.password)) {
+        next(ApiError.badRequest('Invalid Credentials'));
+        return;
+      }
 
-      if (!user || !isMatch) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] });
-      };
+      let token = getJwtToken(user);
+      res.json({ token });
 
-      const payload = {
-        user: {
-          id: user.id,
-        }
-      };
-
-      jwt.sign(
-        payload,
-        config.get('jwtSecret'),
-        { expiresIn: 3600 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
     } catch (err) {
-      console.log(err.message);
-      res.status(500).send();
+        next(err);
     }
   }
 );

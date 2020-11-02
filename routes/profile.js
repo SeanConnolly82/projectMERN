@@ -1,7 +1,7 @@
 const express = require('express');
 const config = require('config');
 
-const User = require('../models/Users');
+const User = require('../models/User');
 const Profile = require('../models/Profile');
 const auth = require('../middleware/auth');
 const { check, validationResult } = require('express-validator');
@@ -13,25 +13,24 @@ profileRouter.post(
   [
     auth,
     [
-      check('about', 'Insert a message').not().isEmpty(),
-     // check('favouriteAuthors', 'Insert a message').not().isEmpty(),
-     // check('favouriteBooks', 'Insert a message').not().isEmpty(),
-     // check('genres', 'Insert a message').not().isEmpty(),
+      check('about', 'Please enter something about yourself!').not().isEmpty(),
+      check('favouriteAuthor', 'Please enter your favourite author!').not().isEmpty(),
+      check('favouriteBook', 'Please enter your favourite books!').not().isEmpty(),
+      check('favouriteGenre', 'Please enter your favourite genre!').not().isEmpty(),
     ],
   ],
   async (req, res) => {
   
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log(errors);
       return res.status(400).json({ errors: errors.array() });
     }
 
     const {
       about,
-      favouriteAuthors,
-      favouriteBooks,
-      genres
+      favouriteAuthor,
+      favouriteBook,
+      favouriteGenre
     } = req.body;
 
     //console.log(req.body);
@@ -39,16 +38,15 @@ profileRouter.post(
     const profileFields = {};
     profileFields.user = req.user.id;
     profileFields.about = about;
-    profileFields.favouriteAuthors = favouriteAuthors;
-    profileFields.favouriteBooks = favouriteBooks;
-    profileFields.genres = genres;
+    profileFields.favouriteAuthor = favouriteAuthor;
+    profileFields.favouriteBook = favouriteBook;
+    profileFields.favouriteGenre = favouriteGenre;
 
     console.log(profileFields);
 
     try {
       let profile = await Profile.findOne({ user: req.user.id });
       // Update existing
-      
       if (profile) {
         profile = await Profile.findOneAndUpdate(
           {user: req.user.id},
@@ -57,12 +55,12 @@ profileRouter.post(
         );
         return res.json(profile);
       };
-
       // Create new
       profile = new Profile(profileFields);
       await profile.save();
       res.json(profile);
     } catch (err) {
+      console.log(err.message);
       res.status(500).send('Server error');
     }
   }

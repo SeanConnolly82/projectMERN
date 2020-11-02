@@ -3,26 +3,26 @@ const mongoose = require('mongoose');
 const bookSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: true
   },
   description: {
     type: String,
-    required: true,
+    required: true
   },
   author: {
     type: String,
-    required: true,
+    required: true
   },
   publisher: {
     type: String,
-    required: true,
+    required: true
   },
   year: {
     type: String,
-    required: true,
+    required: true
   },
   isbn: {
-    type: string,
+    type: String
   },
   date: {
     type: Date,

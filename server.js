@@ -5,6 +5,8 @@ const userRouter = require('./routes/users');
 const bookRouter = require('./routes/books');
 const profileRouter = require('./routes/profile');
 
+const errorHandler = require('./error/api-error-handler');
+
 const app = express();
 
 // Connect to Mongo
@@ -15,9 +17,8 @@ app.use(express.json({ extended: false }));
 app.use('/users', userRouter);
 app.use('/books', bookRouter);
 app.use('/profile', profileRouter);
+app.use(errorHandler);
 
-app.get('/', (req, res) => res.send('API Running'));
-
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
