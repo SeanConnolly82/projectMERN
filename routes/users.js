@@ -18,6 +18,10 @@ const getJwtToken = (user) => {
   return jwt.sign(payload, config.get('jwtSecret'), { expiresIn: 3600 });
 };
 
+// @ route    POST /register
+// @ desc     Register as a new user
+// @ access   Public
+
 userRouter.post(
   '/register',
   [
@@ -58,6 +62,10 @@ userRouter.post(
   }
 );
 
+// @ route    POST /login
+// @ desc     Login as a new user
+// @ access   Public
+
 userRouter.post(
   '/login',
   [
@@ -87,5 +95,9 @@ userRouter.post(
     }
   }
 );
+
+// @ route    DELETE /remove
+// @ desc     Remove a user (and associated profile)
+// @ access   Private
 
 module.exports = userRouter;
