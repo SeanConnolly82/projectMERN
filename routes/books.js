@@ -5,7 +5,6 @@ const Book = require('../models/Book');
 //const User = require('../models/User');
 const auth = require('../middleware/auth');
 const findBook = require('../middleware/book');
-const getBookIndex = require('../middleware/book');
 const findProfile = require('../middleware/profile');
 //const ApiError = require('../error/ApiError');
 
@@ -17,7 +16,6 @@ const bookRouter = express.Router();
 
 bookRouter.get('/library', async (req, res, next) => {
   try {
-    // Find all books
     const books = await Book.find();
     res.json(books);
   } catch (err) {
@@ -58,16 +56,14 @@ bookRouter.post(
 
     const { name, description, author, publisher, year } = req.body;
 
-    const bookFields = {
-      name,
-      description,
-      author,
-      publisher,
-      year,
-    };
-
     try {
-      const book = new Book(bookFields);
+      const book = new Book({
+        name,
+        description,
+        author,
+        publisher,
+        year,
+      });
       await book.save();
       res.json(book);
     } catch (err) {
@@ -75,17 +71,5 @@ bookRouter.post(
     }
   }
 );
-
-// @ route    POST /library/remove/:book_id
-// @ desc     Delete a book from the library
-// @ access   Private
-
-bookRouter.delete('/library/remove/:book_id', auth, async (req, res, next) => {
-  try {
-    await Book.findByIdAndRemove(req.params.book_id);
-  } catch (err) {
-    next(err);
-  }
-});
 
 module.exports = bookRouter;

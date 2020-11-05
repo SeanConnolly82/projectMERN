@@ -2,18 +2,17 @@ const express = require('express');
 //const config = require('config');
 const { check, validationResult } = require('express-validator');
 
-
 const Profile = require('../models/Profile');
 const auth = require('../middleware/auth');
 const findBook = require('../middleware/book');
 const findProfile = require('../middleware/profile');
 const ApiError = require('../error/ApiError');
 
-const profileRouter = express.Router()
+const profileRouter = express.Router();
 
 const getBookIndex = (arrBooks, bookId) => {
   return arrBooks.map((item) => item._id).indexOf(bookId);
-}
+};
 
 // @ route    POST /edit
 // @ desc     Create or update a profile
@@ -92,7 +91,10 @@ profileRouter.put(
     try {
       const book = req.book;
       const profile = req.profile;
-      const bookIndex = getBookIndex(profile.booksCollection, req.params.book_id);
+      const bookIndex = getBookIndex(
+        profile.booksCollection,
+        req.params.book_id
+      );
 
       if (bookIndex !== -1) {
         next(ApiError.badRequest('Book already added'));
@@ -113,16 +115,21 @@ profileRouter.put(
 
 profileRouter.delete(
   '/remove-book/:book_id',
-  [auth, findProfile],
+  [auth, findBook, findProfile],
   async (req, res, next) => {
     try {
       const profile = req.profile;
-      const bookIndex = getBookIndex(profile.booksCollection, req.params.book_id);
+      const bookIndex = getBookIndex(
+        profile.booksCollection,
+        req.params.book_id
+      );
 
       if (bookIndex !== -1) {
         profile.booksCollection.splice(bookIndex, 1);
+      } else {
+        next(ApiError.badRequest('Book not found in your collection!'));
+        return;
       }
-
       await profile.save();
       res.json(profile);
     } catch (err) {
