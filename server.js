@@ -11,7 +11,8 @@ const app = express();
 
 // Connect to Mongo
 connectDB();
-
+// This limit sets the filesize for uploading!!!
+app.use(express.json({ limit: 11000000 }));
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use('/users', userRouter);

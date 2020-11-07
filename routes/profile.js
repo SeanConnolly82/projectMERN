@@ -3,6 +3,7 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 
 const Profile = require('../models/Profile');
+const Image = require('../models/Image');
 const auth = require('../middleware/auth');
 const findBook = require('../middleware/book');
 const findProfile = require('../middleware/profile');
@@ -13,6 +14,7 @@ const profileRouter = express.Router();
 const getBookIndex = (arrBooks, bookId) => {
   return arrBooks.map((item) => item._id).indexOf(bookId);
 };
+
 
 // @ route    POST /edit
 // @ desc     Create or update a profile
@@ -137,5 +139,45 @@ profileRouter.delete(
     }
   }
 );
+
+// @ route    POST /profile/image/:id
+// @ desc     Remove book from profile
+// @ access   Public
+
+profileRouter.get('/image/:id', async (req, res, next) => {
+  try {
+    const img = await Image.findOne({ _id: req.params.id });
+
+    let data = img.image.toString('base64');
+  
+    if (!img) {
+      next(ApiError.notFound('Not found'));
+      return;
+    }
+    res.json(data);
+  } catch (err) {
+    next(err)
+  }
+})
+
+// @ route    POST /profile/image-upload
+// @ desc     Remove book from profile
+// @ access   Public
+
+// TODO: Make private
+
+profileRouter.post('/image-upload', async (req, res, next) => {
+  try {
+    const imageBuffer = new Buffer.from(req.body.file, 'base64');
+    // TODO: include filename and type
+    const img = new Image({ image: imageBuffer });
+
+    await img.save();
+
+    res.json(img);
+  } catch (err) {
+    next(err)
+  }
+});
 
 module.exports = profileRouter;

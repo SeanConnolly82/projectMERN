@@ -10,6 +10,7 @@ const ApiError = require('../error/ApiError');
 
 const auth = require('../middleware/auth');
 const findProfile = require('../middleware/profile');
+const { has } = require('config');
 
 const userRouter = express.Router();
 
@@ -107,18 +108,52 @@ userRouter.delete(
   [auth, findProfile],
   async (req, res, next) => {
     try {
-      await User.findOneAndDelete({_id: req.user.id});
-      await Profile.findOneAndDelete({user: req.user.id})
-      res.json({msg: "User and profile deleted"})
-    } catch(err) {
+      await User.findOneAndDelete({ _id: req.user.id });
+      await Profile.findOneAndDelete({ user: req.user.id });
+      res.json({ msg: 'User and profile deleted' });
+    } catch (err) {
       next(err);
     }
   }
 );
 
-// @ route
+// @ route    PUT /change-password
 // @ desc     Change password
 // @ access   Private
+
+userRouter.put(
+  '/change-password',
+  [auth, [check('password', 'Please enter a password').not().isEmpty()]],
+  async (req, res, next) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+
+      const user = req.user;
+      const newPassword = req.body.password;
+
+      console.log(newPassword)
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      console.log(user.id);
+
+      await User.findOneAndUpdate(
+        { _id: user.id },
+        { $set: { password: hashedPassword } }
+      );
+      res.json({ msg: 'Password changed' });
+    } catch (err) {
+      console.log(err.message);
+      next(err);
+    }
+  }
+);
 
 // @ route
 // @ desc     Reset password
