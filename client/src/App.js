@@ -1,13 +1,12 @@
-import Uploader from './components/utils/Uploader';
+//import Uploader from './components/utils/Uploader';
+//import Image from './components/content/Image';
+
 import './App.css';
-import Image from './components/content/Image';
 
 function App() {
   return (
     <div className="App">
       <h1>Welcome to the Bookstore!</h1>
-      <Uploader />
-      <Image />
     </div>
   );
 }

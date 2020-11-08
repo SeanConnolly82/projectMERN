@@ -2,11 +2,9 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 
 const Book = require('../models/Book');
-//const User = require('../models/User');
 const auth = require('../middleware/auth');
 const findBook = require('../middleware/book');
 const findProfile = require('../middleware/profile');
-//const ApiError = require('../error/ApiError');
 
 const bookRouter = express.Router();
 
@@ -14,7 +12,7 @@ const bookRouter = express.Router();
 // @ desc     Get all books
 // @ access   Public
 
-bookRouter.get('/library', async (req, res, next) => {
+bookRouter.get('/', async (req, res, next) => {
   try {
     const books = await Book.find();
     res.json(books);
@@ -23,25 +21,32 @@ bookRouter.get('/library', async (req, res, next) => {
   }
 });
 
-// @ route    GET /library/:book
-// @ desc     Get a specific book
+// @ route    GET /library/search
+// @ desc     Get all books for search critera (to be sent as a query param)
 // @ access   Public
 
-bookRouter.get('/library/:book_id', findBook, async (req, res, next) => {
+bookRouter.get('/search', async (req, res, next) => {
+  let criteria = req.query.keyword;
   try {
-    const book = req.book;
-    res.json(book);
+    const books = await Book.find({
+      $or: [
+        { name: { $regex: criteria, $options: 'i' } },
+        { author: { $regex: criteria, $options: 'i' } },
+        { description: { $regex: criteria, $options: 'i' } },
+      ],
+    });
+    res.json(books);
   } catch (err) {
     next(err);
   }
 });
 
-// @ route    POST /library/add
+// @ route    POST /library
 // @ desc     Add a new book to library
 // @ access   Private
 
 bookRouter.post(
-  '/library/add',
+  '/',
   auth,
   [
     check('name', 'Please enter a name').not().isEmpty(),
@@ -57,7 +62,13 @@ bookRouter.post(
     const { name, description, author, publisher, year } = req.body;
 
     try {
-      const book = new Book({
+      let book = await Book.findOne({ name: name });
+      if (book) {
+        res.json({ msg: 'Book already exists in library' });
+        return;
+      }
+
+      book = new Book({
         name,
         description,
         author,
@@ -71,5 +82,18 @@ bookRouter.post(
     }
   }
 );
+
+// @ route    GET /library/:book_id
+// @ desc     Get a specific book
+// @ access   Public
+
+bookRouter.get('/:book_id', findBook, async (req, res, next) => {
+  try {
+    const book = req.book;
+    res.json(book);
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = bookRouter;

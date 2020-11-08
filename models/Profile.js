@@ -12,6 +12,9 @@ const profileSchema = new mongoose.Schema({
   image: {
     type: Buffer,
   },
+  imageFileType: {
+    type: String
+  },
   favouriteAuthor: {
     type: String,
     required: true

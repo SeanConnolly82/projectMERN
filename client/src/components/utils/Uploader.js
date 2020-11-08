@@ -31,9 +31,9 @@ class Uploader extends React.Component {
 
   fileUploadHandler = async () => {
     try {
-      //const payload = this.state.file[0];
+      //console.log(this.state.file);
       if (!this.state.file) return;
-      const res = await axios.post('http://localhost:3000/profile/image-upload', {
+      const res = await axios.put('http://localhost:3000/profile/image-upload/5fa822b9859682052107a27e', {
         file: this.state.file[0]
       });
       console.log(res.id);

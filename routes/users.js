@@ -10,7 +10,6 @@ const ApiError = require('../error/ApiError');
 
 const auth = require('../middleware/auth');
 const findProfile = require('../middleware/profile');
-const { has } = require('config');
 
 const userRouter = express.Router();
 
@@ -23,7 +22,40 @@ const getJwtToken = (user) => {
   return jwt.sign(payload, config.get('jwtSecret'), { expiresIn: 3600 });
 };
 
-// @ route    POST /register
+// @ route    POST /user/login
+// @ desc     Login as a new user
+// @ access   Public
+
+userRouter.post(
+  '/login',
+  [
+    check('email', 'Please enter a valid email').isEmail(),
+    check('password', 'Please enter a password').not().isEmpty(),
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        next(ApiError.badRequest('Invalid Credentials'));
+        return;
+      }
+
+      let token = getJwtToken(user);
+      res.json({ token });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// @ route    POST /user/register
 // @ desc     Register as a new user
 // @ access   Public
 
@@ -66,45 +98,12 @@ userRouter.post(
   }
 );
 
-// @ route    POST /login
-// @ desc     Login as a new user
-// @ access   Public
-
-userRouter.post(
-  '/login',
-  [
-    check('email', 'Please enter a valid email').isEmail(),
-    check('password', 'Please enter a password').not().isEmpty(),
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { email, password } = req.body;
-
-    try {
-      const user = await User.findOne({ email });
-
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        next(ApiError.badRequest('Invalid Credentials'));
-        return;
-      }
-
-      let token = getJwtToken(user);
-      res.json({ token });
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-// @ route    DELETE /remove-account
+// @ route    DELETE /user/remove-user
 // @ desc     Remove a user (and associated profile)
 // @ access   Private
 
 userRouter.delete(
-  '/remove-account',
+  '/remove-user',
   [auth, findProfile],
   async (req, res, next) => {
     try {
@@ -117,12 +116,12 @@ userRouter.delete(
   }
 );
 
-// @ route    PUT /change-password
+// @ route    PUT /user
 // @ desc     Change password
 // @ access   Private
 
 userRouter.put(
-  '/change-password',
+  '/',
   [auth, [check('password', 'Please enter a password').not().isEmpty()]],
   async (req, res, next) => {
 
@@ -155,6 +154,7 @@ userRouter.put(
   }
 );
 
+// @ TODO:     nice to have!
 // @ route
 // @ desc     Reset password
 // @ access   Public

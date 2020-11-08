@@ -3,7 +3,6 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 
 const Profile = require('../models/Profile');
-const Image = require('../models/Image');
 const auth = require('../middleware/auth');
 const findBook = require('../middleware/book');
 const findProfile = require('../middleware/profile');
@@ -15,13 +14,12 @@ const getBookIndex = (arrBooks, bookId) => {
   return arrBooks.map((item) => item._id).indexOf(bookId);
 };
 
-
-// @ route    POST /edit
-// @ desc     Create or update a profile
+// @ route    POST /profile
+// @ desc     Create a profile
 // @ access   Private
 
 profileRouter.post(
-  '/edit',
+  '/',
   [
     auth,
     [
@@ -41,23 +39,20 @@ profileRouter.post(
     }
 
     const { about, favouriteAuthor, favouriteGenre } = req.body;
+    const user = req.user.id;
 
-    const profileFields = {};
-    profileFields.user = req.user.id;
-    profileFields.about = about;
-    profileFields.favouriteAuthor = favouriteAuthor;
-    profileFields.favouriteGenre = favouriteGenre;
+    const profileFields = {
+      user,
+      about,
+      favouriteAuthor,
+      favouriteGenre,
+    };
 
     try {
       let profile = await Profile.findOne({ user: req.user.id });
-      // Update existing
       if (profile) {
-        profile = await Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileFields },
-          { new: true }
-        );
-        return res.json(profile);
+        next(ApiError.badRequest("Profile already exists"));
+        return;
       }
       // Create new
       profile = new Profile(profileFields);
@@ -69,25 +64,74 @@ profileRouter.post(
   }
 );
 
-// @ route    GET /:user_id
+// @ route    PUT /profile
+// @ desc     Update a profile
+// @ access   Private
+
+profileRouter.put(
+  '/',
+  [
+    auth,
+    findProfile,
+    [
+      (check('about', 'Please enter something about yourself!').not().isEmpty(),
+      check('favouriteAuthor', 'Please enter your favourite author!')
+        .not()
+        .isEmpty(),
+      check('favouriteGenre', 'Please enter your favourite genre!')
+        .not()
+        .isEmpty()),
+    ],
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { about, favouriteAuthor, favouriteGenre } = req.body;
+
+    const profile = req.profile;
+
+    profile.about = about;
+    profile.favouriteAuthor = favouriteAuthor;
+    profile.favouriteGenre = favouriteGenre;
+
+    try {
+      await profile.save();
+      res.json(profile);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// @ route    GET /profile/:user_id
 // @ desc     Get a profile
 // @ access   Public
 
 profileRouter.get('/:user_id', findProfile, async (req, res, next) => {
   try {
     const profile = req.profile;
-    res.json(profile);
+    if(profile.image) {
+      res.json({ 
+        profile: profile,
+        image: profile.image.toString('base64')
+      });
+      return;
+    }
+    res.json(profile)
   } catch (err) {
     next(err);
   }
 });
 
-// @ route    PUT /add-book/:book_id
+// @ route    PUT /profile/books/:book_id
 // @ desc     Add book to profile
 // @ access   Private
 
 profileRouter.put(
-  '/add-book/:book_id',
+  '/books/:book_id',
   [auth, findBook, findProfile],
   async (req, res, next) => {
     try {
@@ -111,12 +155,12 @@ profileRouter.put(
   }
 );
 
-// @ route    DELETE /remove-book/:book_id
+// @ route    DELETE /profile/books/:book_id
 // @ desc     Remove book from profile
 // @ access   Private
 
 profileRouter.delete(
-  '/remove-book/:book_id',
+  '/books/:book_id',
   [auth, findBook, findProfile],
   async (req, res, next) => {
     try {
@@ -140,44 +184,28 @@ profileRouter.delete(
   }
 );
 
-// @ route    POST /profile/image/:id
-// @ desc     Remove book from profile
-// @ access   Public
+// @ route    PUT /profile/image-upload/:user_id
+// @ desc     Upload a profile picture
+// @ access   Private
 
-profileRouter.get('/image/:id', async (req, res, next) => {
-  try {
-    const img = await Image.findOne({ _id: req.params.id });
+profileRouter.put(
+  '/image-upload/:user_id',
+  [auth, findProfile],
+  async (req, res, next) => {
+    try {
+      const profile = req.profile;
+      const imageBuffer = new Buffer.from(req.body.file, 'base64');
+      const imageFileType = req.body.fileType;
 
-    let data = img.image.toString('base64');
-  
-    if (!img) {
-      next(ApiError.notFound('Not found'));
-      return;
+      profile.image = imageBuffer;
+      profile.imageFileType = imageFileType;
+
+      await profile.save();
+      res.json({ msg: 'Upload sucessful' });
+    } catch (err) {
+      next(err);
     }
-    res.json(data);
-  } catch (err) {
-    next(err)
   }
-})
-
-// @ route    POST /profile/image-upload
-// @ desc     Remove book from profile
-// @ access   Public
-
-// TODO: Make private
-
-profileRouter.post('/image-upload', async (req, res, next) => {
-  try {
-    const imageBuffer = new Buffer.from(req.body.file, 'base64');
-    // TODO: include filename and type
-    const img = new Image({ image: imageBuffer });
-
-    await img.save();
-
-    res.json(img);
-  } catch (err) {
-    next(err)
-  }
-});
+);
 
 module.exports = profileRouter;

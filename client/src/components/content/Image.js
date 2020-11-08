@@ -11,10 +11,10 @@ class Image extends Component {
 
   decodeBuffer = () => {
     axios
-      .get('http://localhost:3000/profile/image/5fa6d7aba5058f060587b3b1')
+      .get('http://localhost:3000/profile/5fa822b9859682052107a27e')
       .then((res) => {
         this.setState({
-          img: `data:image/jpeg;base64,${res.data}`,
+          img: `data:image/jpeg;base64,${res.data.image}`,
         });
       });
   };

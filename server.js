@@ -16,7 +16,7 @@ app.use(express.json({ limit: 11000000 }));
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use('/users', userRouter);
-app.use('/books', bookRouter);
+app.use('/library', bookRouter);
 app.use('/profile', profileRouter);
 app.use(errorHandler);
 
