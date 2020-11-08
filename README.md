@@ -7,7 +7,14 @@ From the root folder:
 npm run dev
 ```
 
-React components saved in: ./client/components/
+The following folders are untracked on GIT:
+
+- node_modules/
+- client/node_modules/
+- client/public/
+- client/src/
+
+Update client folders with required files.
 
 Routes:
 
