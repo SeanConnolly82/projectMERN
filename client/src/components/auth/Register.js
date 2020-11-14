@@ -21,7 +21,6 @@ class Register extends React.Component {
     }
     e.preventDefault();
     const registerResult = await AuthServices.register(name, email, password);
-    console.log(registerResult);
     if (registerResult === "Success") {
       this.setState({ registered: true });
       this.props.setUser();

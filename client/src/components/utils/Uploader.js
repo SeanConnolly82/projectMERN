@@ -24,7 +24,7 @@ class Uploader extends React.Component {
     super(props);
     this.state = {
       file: null,
-      fileType: null,
+      fileType: null
     };
   }
 

@@ -135,12 +135,8 @@ userRouter.put(
       const user = req.user;
       const newPassword = req.body.password;
 
-      console.log(newPassword)
-
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-      console.log(user.id);
 
       await User.findOneAndUpdate(
         { _id: user.id },

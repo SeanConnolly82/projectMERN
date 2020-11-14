@@ -14,8 +14,6 @@ class Dashboard extends React.Component {
       editProfile: null,
       deleteProfile: null,
       numberOfBooks: null,
-      image: null,
-      imageFileType: null,
     };
     this.setEditProfile = this.setEditProfile.bind(this);
     this.setDeleteProfile = this.setDeleteProfile.bind(this);
@@ -32,26 +30,22 @@ class Dashboard extends React.Component {
           },
         }
       );
-      const image = res.data.decodedImage;
       this.props.setProfile(res.data.profile);
-
       this.setState({
         isLoading: false,
         profileView: true,
-        image: image,
-        imageFileType: this.props.profile.imageFileType,
         numberOfBooks: this.props.profile.booksCollection.length,
       });
     } catch (err) {
-      if (err.response.data.errors[0].msg === 'Profile not found') {
-        this.setState({
-          isLoading: false,
-        });
-      } else {
-        console.log(err.response);
-      }
+      //if (err.response.data.errors[0].msg === 'Profile not found') {
+      //  this.setState({
+      //     isLoading: false,
+      //    });
+      // } else {
+      console.log(err.response);
+      //  }
     }
-  };
+  }
 
   setBookCount = () => {
     this.setState({ numberOfBooks: this.state.numberOfBooks - 1 });
@@ -59,15 +53,15 @@ class Dashboard extends React.Component {
 
   setEditProfile() {
     this.setState({ editProfile: true });
-  };
+  }
 
   setDeleteProfile() {
     this.setState({ deleteProfile: true });
-  };
+  }
 
   componentDidMount() {
     this.getCurrentUserProfile();
-  };
+  }
 
   render() {
     let profile;
@@ -81,27 +75,19 @@ class Dashboard extends React.Component {
     }
 
     if (this.state.editProfile) {
-      return (
-        <Redirect
-          to='/edit-profile'
-        />
-      );
+      return <Redirect to='/edit-profile' />;
     }
 
     if (this.state.deleteProfile) {
       return <Redirect to='/delete-profile' />;
     }
-
     if (!this.state.isLoading && profile) {
       return (
         <div className='container'>
           <h1 className='mt-5 mb-5 text-center'>{`Welcome ${profile.user.name}`}</h1>
           <div className='row mb-5'>
             <div className='col-md-5 d-flex flex-column justify-content-around'>
-              <Image
-                image={this.state.image}
-                imageFileType={this.state.imageFileType}
-              ></Image>
+              <Image profile={this.props.profile}></Image>
               <button
                 type='button'
                 className='btn btn-primary btn-block mt-4'

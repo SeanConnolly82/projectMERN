@@ -3,28 +3,16 @@ import React, { Component } from 'react';
 class Image extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      img: null,
-    };
-  }
-
-  decodeBuffer = () => {
-    this.setState({
-      img: `data:${this.props.imageFileType};base64,${this.props.image}`,
-    });
-  };
-
-  componentDidMount() {
-    this.decodeBuffer();
+    this.state = {};
   }
 
   render() {
 
-    if (this.props.image) {
+    if (this.props.profile.image.imageBase64) {
       return (
         <img
           className='img-fluid'
-          src={this.state.img}
+          src={`data:${this.props.profile.image.imageFileType};base64,${this.props.profile.image.imageBase64}`}
           alt='Helpful alt text'
         />
       );
@@ -32,7 +20,7 @@ class Image extends Component {
       return (
         <img
           className='img-fluid'
-          src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+          src='https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'
           alt='Helpful alt text'
         />
       );

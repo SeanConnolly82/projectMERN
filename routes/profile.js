@@ -1,5 +1,4 @@
 const express = require('express');
-//const config = require('config');
 const { check, validationResult } = require('express-validator');
 
 const Profile = require('../models/Profile');
@@ -41,7 +40,13 @@ profileRouter.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { about, favouriteBook, favouriteAuthor, favouriteGenre } = req.body;
+    const {
+      about,
+      favouriteBook,
+      favouriteAuthor,
+      favouriteGenre,
+      image
+    } = req.body;
     const user = req.user.id;
 
     const profileFields = {
@@ -50,6 +55,7 @@ profileRouter.post(
       favouriteBook,
       favouriteAuthor,
       favouriteGenre,
+      image
     };
 
     try {
@@ -73,21 +79,32 @@ profileRouter.post(
 // @ access   Private
 
 profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
-  const { about, favouriteBook, favouriteAuthor, favouriteGenre } = req.body;
+  const {
+    about,
+    favouriteBook,
+    favouriteAuthor,
+    favouriteGenre,
+    image,
+  } = req.body;
+
   const profile = req.profile;
 
   profile.user = profile.user.id;
   // update profile for truthy values
   profile.about = about ? about : profile.about;
-  profile.favouroiteBook = favouriteBook
-    ? favouriteBook
-    : profile.favouroiteBook;
+  profile.favouriteBook = favouriteBook ? favouriteBook : profile.favouriteBook;
   profile.favouriteAuthor = favouriteAuthor
     ? favouriteAuthor
     : profile.favouriteAuthor;
   profile.favouriteGenre = favouriteGenre
     ? favouriteGenre
     : profile.favouriteGenre;
+  profile.image.imageBase64 = image.imageBase64
+    ? image.imageBase64
+    : profile.image.imageBase64;
+  profile.image.imageFileType = image.imageFileType
+    ? image.imageFileType
+    : profile.image.imageFileType;
 
   try {
     await profile.save();
@@ -104,14 +121,7 @@ profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
 profileRouter.get('/:user_id', [auth, findProfile], async (req, res, next) => {
   try {
     let profile = req.profile;
-    if (!profile.image) {
-      res.json({ profile });
-      return;
-    }
-    const decodedImage = profile.image.toString('base64');
-    // drop image buffer before sending response
-    profile.image = null;
-    res.json({ profile, decodedImage });
+    res.json({ profile });
   } catch (err) {
     next(err);
   }
