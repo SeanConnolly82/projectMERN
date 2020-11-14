@@ -15,6 +15,10 @@ const profileSchema = new mongoose.Schema({
   imageFileType: {
     type: String
   },
+  favouriteBook: {
+    type: String,
+    required: true
+  },
   favouriteAuthor: {
     type: String,
     required: true

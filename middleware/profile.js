@@ -6,14 +6,16 @@ const findProfile = async (req, res, next) => {
   const msg = 'Profile not found';
   try {
     const user_id = req.params.user_id || req.user.id;
-    const profile = await Profile.findOne({ user: user_id });
+    const profile = await Profile.findOne({ user: user_id }).populate('user', [
+      'name',
+    ]);
     if (!profile) {
       next(ApiError.notFound(msg));
       return;
     }
     req.profile = profile;
     next();
-  } catch(err) {
+  } catch (err) {
     if (err.kind === 'ObjectId') {
       next(ApiError.notFound(msg));
       return;

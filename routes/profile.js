@@ -24,6 +24,9 @@ profileRouter.post(
     auth,
     [
       check('about', 'Please enter something about yourself!').not().isEmpty(),
+      check('favouriteBook', 'Please enter your favourite book!')
+        .not()
+        .isEmpty(),
       check('favouriteAuthor', 'Please enter your favourite author!')
         .not()
         .isEmpty(),
@@ -38,12 +41,13 @@ profileRouter.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { about, favouriteAuthor, favouriteGenre } = req.body;
+    const { about, favouriteBook, favouriteAuthor, favouriteGenre } = req.body;
     const user = req.user.id;
 
     const profileFields = {
       user,
       about,
+      favouriteBook,
       favouriteAuthor,
       favouriteGenre,
     };
@@ -51,7 +55,7 @@ profileRouter.post(
     try {
       let profile = await Profile.findOne({ user: req.user.id });
       if (profile) {
-        next(ApiError.badRequest("Profile already exists"));
+        next(ApiError.badRequest('Profile already exists'));
         return;
       }
       // Create new
@@ -68,79 +72,63 @@ profileRouter.post(
 // @ desc     Update a profile
 // @ access   Private
 
-profileRouter.put(
-  '/',
-  [
-    auth,
-    findProfile,
-    [
-      (check('about', 'Please enter something about yourself!').not().isEmpty(),
-      check('favouriteAuthor', 'Please enter your favourite author!')
-        .not()
-        .isEmpty(),
-      check('favouriteGenre', 'Please enter your favourite genre!')
-        .not()
-        .isEmpty()),
-    ],
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
+  const { about, favouriteBook, favouriteAuthor, favouriteGenre } = req.body;
+  const profile = req.profile;
 
-    const { about, favouriteAuthor, favouriteGenre } = req.body;
+  profile.user = profile.user.id;
+  // update profile for truthy values
+  profile.about = about ? about : profile.about;
+  profile.favouroiteBook = favouriteBook
+    ? favouriteBook
+    : profile.favouroiteBook;
+  profile.favouriteAuthor = favouriteAuthor
+    ? favouriteAuthor
+    : profile.favouriteAuthor;
+  profile.favouriteGenre = favouriteGenre
+    ? favouriteGenre
+    : profile.favouriteGenre;
 
-    const profile = req.profile;
-
-    profile.about = about;
-    profile.favouriteAuthor = favouriteAuthor;
-    profile.favouriteGenre = favouriteGenre;
-
-    try {
-      await profile.save();
-      res.json(profile);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-// @ route    GET /profile/:user_id
-// @ desc     Get a profile
-// @ access   Public
-
-profileRouter.get('/:user_id', findProfile, async (req, res, next) => {
   try {
-    const profile = req.profile;
-    if(profile.image) {
-      res.json({ 
-        profile: profile,
-        image: profile.image.toString('base64')
-      });
-      return;
-    }
-    res.json(profile)
+    await profile.save();
+    res.json(profile);
   } catch (err) {
     next(err);
   }
 });
 
-// @ route    PUT /profile/books/:book_id
+// @ route    GET /profile
+// @ desc     Get a profile
+// @ access   Private
+
+profileRouter.get('/:user_id', [auth, findProfile], async (req, res, next) => {
+  try {
+    let profile = req.profile;
+    if (!profile.image) {
+      res.json({ profile });
+      return;
+    }
+    const decodedImage = profile.image.toString('base64');
+    // drop image buffer before sending response
+    profile.image = null;
+    res.json({ profile, decodedImage });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// @ route    PUT /profile/my-books
 // @ desc     Add book to profile
 // @ access   Private
 
 profileRouter.put(
-  '/books/:book_id',
+  '/my-books',
   [auth, findBook, findProfile],
   async (req, res, next) => {
     try {
       const book = req.book;
       const profile = req.profile;
-      const bookIndex = getBookIndex(
-        profile.booksCollection,
-        req.params.book_id
-      );
+      const bookIndex = getBookIndex(profile.booksCollection, req.body.book);
 
       if (bookIndex !== -1) {
         next(ApiError.badRequest('Book already added'));
@@ -155,12 +143,12 @@ profileRouter.put(
   }
 );
 
-// @ route    DELETE /profile/books/:book_id
+// @ route    DELETE /profile/my-books/:book_id
 // @ desc     Remove book from profile
 // @ access   Private
 
 profileRouter.delete(
-  '/books/:book_id',
+  '/my-books/:book_id',
   [auth, findBook, findProfile],
   async (req, res, next) => {
     try {
@@ -196,7 +184,6 @@ profileRouter.put(
       const profile = req.profile;
       const imageBuffer = new Buffer.from(req.body.file, 'base64');
       const imageFileType = req.body.fileType;
-
       profile.image = imageBuffer;
       profile.imageFileType = imageFileType;
 

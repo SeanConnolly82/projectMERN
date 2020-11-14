@@ -48,7 +48,7 @@ userRouter.post(
       }
 
       let token = getJwtToken(user);
-      res.json({ token });
+      res.json({ user: user.id, token: token });
     } catch (err) {
       next(err);
     }
@@ -91,24 +91,24 @@ userRouter.post(
       await user.save();
 
       let token = getJwtToken(user);
-      res.json({ token });
+      res.json({ user: user.id, token: token });
     } catch (err) {
       next(err);
     }
   }
 );
 
-// @ route    DELETE /user/remove-user
+// @ route    DELETE /user/remove-user/:user_id
 // @ desc     Remove a user (and associated profile)
 // @ access   Private
 
 userRouter.delete(
-  '/remove-user',
-  [auth, findProfile],
+  '/remove-user/:user_id',
+  [auth],
   async (req, res, next) => {
     try {
-      await User.findOneAndDelete({ _id: req.user.id });
-      await Profile.findOneAndDelete({ user: req.user.id });
+      await User.findOneAndDelete({ _id: req.params.user_id });
+      await Profile.findOneAndDelete({ user: req.params.user_id });
       res.json({ msg: 'User and profile deleted' });
     } catch (err) {
       next(err);

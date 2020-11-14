@@ -4,7 +4,6 @@ const config = require('config');
 const ApiError = require('../error/ApiError');
 
 const auth = (req, res, next) => {
-  
   const token = req.header('x-auth-token');
 
   if (!token) {
