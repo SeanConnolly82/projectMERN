@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const register = async (name, email, password) => {
   try {
-    await axios.post('http://localhost:3000/users/register', {
+    await axios.post('/users/register', {
       name,
       email,
       password,
@@ -15,7 +15,7 @@ const register = async (name, email, password) => {
 
 const login = async (email, password) => {
   try {
-    const res = await axios.post('http://localhost:3000/users/login', {
+    const res = await axios.post('/users/login', {
       email,
       password,
     });
@@ -25,6 +25,28 @@ const login = async (email, password) => {
       localStorage.setItem('token', res.data.token);
     }
     return 'Success';
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const changePassword = async (password, newPassword) => {
+  const token = getAuthToken();
+  try {
+    const res = await axios.put(
+      '/users/change-password',
+      {
+        password,
+        newPassword,
+      },
+      {
+        headers: {
+          'x-auth-token': token,
+        },
+      }
+    );
+
+    if (res.data) return 'Success';
   } catch (err) {
     console.log(err);
   }
@@ -42,4 +64,4 @@ const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
-export default { register, logout, login, getCurrentUser, getAuthToken };
+export default { register, logout, login, changePassword, getCurrentUser, getAuthToken };

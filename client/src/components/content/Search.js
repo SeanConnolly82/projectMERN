@@ -38,7 +38,7 @@ class Search extends Component {
             <input
               type='text'
               className='form-control'
-              placeholder='Search titles and authors...'
+              placeholder='Search the collection...'
               onChange={(e) => this.setState({ keyword: e.target.value })}
             />
             <div className='input-group-append'>

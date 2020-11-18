@@ -12,10 +12,12 @@ class Dashboard extends React.Component {
       isLoading: true,
       profileView: true,
       editProfile: null,
+      changePassword: null,
       deleteProfile: null,
       numberOfBooks: null,
     };
     this.setEditProfile = this.setEditProfile.bind(this);
+    this.setChangePassword = this.setChangePassword.bind(this);
     this.setDeleteProfile = this.setDeleteProfile.bind(this);
   }
 
@@ -23,7 +25,7 @@ class Dashboard extends React.Component {
     try {
       const token = AuthServices.getAuthToken();
       const res = await axios.get(
-        `http://localhost:3000/profile/${this.props.user}`,
+        `/profile/${this.props.user}`,
         {
           headers: {
             'x-auth-token': token,
@@ -38,12 +40,11 @@ class Dashboard extends React.Component {
       });
     } catch (err) {
       //if (err.response.data.errors[0].msg === 'Profile not found') {
-      //  this.setState({
-      //     isLoading: false,
-      //    });
-      // } else {
-      console.log(err.response);
-      //  }
+      this.setState({ isLoading: false });
+      //  });
+      //} else {
+      console.log(err);
+      //}
     }
   }
 
@@ -53,6 +54,10 @@ class Dashboard extends React.Component {
 
   setEditProfile() {
     this.setState({ editProfile: true });
+  }
+
+  setChangePassword() {
+    this.setState({ changePassword: true });
   }
 
   setDeleteProfile() {
@@ -78,6 +83,10 @@ class Dashboard extends React.Component {
       return <Redirect to='/edit-profile' />;
     }
 
+    if (this.state.changePassword) {
+      return <Redirect to='/change-password' />;
+    }
+
     if (this.state.deleteProfile) {
       return <Redirect to='/delete-profile' />;
     }
@@ -98,6 +107,7 @@ class Dashboard extends React.Component {
               <button
                 type='button'
                 className='btn btn-outline-primary btn-block'
+                onClick={this.setChangePassword}
               >
                 Change Password
               </button>

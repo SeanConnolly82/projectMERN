@@ -13,6 +13,7 @@ const findProfile = require('../middleware/profile');
 
 const userRouter = express.Router();
 
+// Get a JWT token for user authentication
 const getJwtToken = (user) => {
   const payload = {
     user: {
@@ -22,7 +23,7 @@ const getJwtToken = (user) => {
   return jwt.sign(payload, config.get('jwtSecret'), { expiresIn: 3600 });
 };
 
-// @ route    POST /user/login
+// @ route    POST /users/login
 // @ desc     Login as a new user
 // @ access   Public
 
@@ -43,7 +44,7 @@ userRouter.post(
       const user = await User.findOne({ email });
 
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        next(ApiError.badRequest('Invalid Credentials'));
+        next(ApiError.notAuthorised('Invalid Credentials'));
         return;
       }
 
@@ -55,7 +56,7 @@ userRouter.post(
   }
 );
 
-// @ route    POST /user/register
+// @ route    POST /users/register
 // @ desc     Register as a new user
 // @ access   Public
 
@@ -98,49 +99,57 @@ userRouter.post(
   }
 );
 
-// @ route    DELETE /user/remove-user/:user_id
+// @ route    DELETE /users/remove-user/:user_id
 // @ desc     Remove a user (and associated profile)
 // @ access   Private
 
-userRouter.delete(
-  '/remove-user/:user_id',
-  [auth],
-  async (req, res, next) => {
-    try {
-      await User.findOneAndDelete({ _id: req.params.user_id });
-      await Profile.findOneAndDelete({ user: req.params.user_id });
-      res.json({ msg: 'User and profile deleted' });
-    } catch (err) {
-      next(err);
-    }
+userRouter.delete('/remove-user/:user_id', [auth], async (req, res, next) => {
+  try {
+    await User.findOneAndDelete({ _id: req.params.user_id });
+    await Profile.findOneAndDelete({ user: req.params.user_id });
+    res.json({ msg: 'User and profile deleted' });
+  } catch (err) {
+    next(err);
   }
-);
+});
 
-// @ route    PUT /user
+// @ route    PUT /users/change-password
 // @ desc     Change password
 // @ access   Private
 
 userRouter.put(
-  '/',
-  [auth, [check('password', 'Please enter a password').not().isEmpty()]],
+  '/change-password',
+  [
+    auth,
+    [
+      check('password', 'Please enter a password').not().isEmpty(),
+      check(
+        'newPassword',
+        'Please enter a password with 6 or more characters'
+      ).isLength({ min: 6 }),
+    ],
+  ],
   async (req, res, next) => {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     try {
-
-      const user = req.user;
-      const newPassword = req.body.password;
-
+      
+      const user = await User.findOne({ _id: req.user.id });
+      const currentPassword = req.body.password;
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      const hashedNewPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+      if (!(await bcrypt.compare(currentPassword, user.password))) {
+        next(ApiError.notAuthorised('Invalid Password'));
+        return;
+      }
 
       await User.findOneAndUpdate(
         { _id: user.id },
-        { $set: { password: hashedPassword } }
+        { $set: { password: hashedNewPassword } }
       );
       res.json({ msg: 'Password changed' });
     } catch (err) {

@@ -32,7 +32,7 @@ class EditProfile extends Component {
     try {
       if (!this.props.profile) {
         await axios.post(
-          'http://localhost:3000/profile',
+          '/profile',
           {
             about,
             favouriteBook,
@@ -55,7 +55,7 @@ class EditProfile extends Component {
       ) {
         // Put Request to submit updated profile
         await axios.put(
-          'http://localhost:3000/profile',
+          '/profile',
           {
             about,
             favouriteBook,
@@ -87,6 +87,7 @@ class EditProfile extends Component {
 
     let profilePlaceholderDefaults = {};
 
+    // Assign the placeholder values
     profilePlaceholderDefaults.about = profile
       ? ''
       : 'Tell us about yourself..';
@@ -102,6 +103,7 @@ class EditProfile extends Component {
 
     let defaultValues = {};
 
+    // Inherit the current profile as default values
     defaultValues.about = profile ? profile.about : '';
     defaultValues.favouriteBook = profile ? profile.favouriteBook : '';
     defaultValues.favouriteAuthor = profile ? profile.favouriteAuthor : '';

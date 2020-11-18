@@ -7,6 +7,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/layout/Dashboard';
 import EditProfile from './components/layout/EditProfile';
+import ChangePassword from './components/auth/ChangePassword';
 import DeleteProfile from './components/layout/DeleteProfile';
 import AuthServices from './services/auth-service';
 
@@ -92,6 +93,13 @@ class App extends Component {
                 profile={this.state.profile}
                 setProfile={this.setProfile}
               />
+            ) : (
+              <Redirect to='/' />
+            )}
+          </Route>
+          <Route exact path='/change-password'>
+            {this.state.loggedIn ? (
+              <ChangePassword/>
             ) : (
               <Redirect to='/' />
             )}

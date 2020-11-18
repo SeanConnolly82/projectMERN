@@ -18,6 +18,7 @@ class Image extends Component {
       );
     } else {
       return (
+        // add a placeholder image as a default profile picture
         <img
           className='img-fluid'
           src='https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'

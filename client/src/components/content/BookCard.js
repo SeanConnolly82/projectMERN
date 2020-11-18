@@ -7,7 +7,8 @@ class BookCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      bookRemoved: false
+      bookAdded: null,
+      bookRemoved: null
     };
     this.handleAddBook = this.handleAddBook.bind(this);
     this.handleRemoveBook = this.handleRemoveBook.bind(this);
@@ -17,7 +18,7 @@ class BookCard extends React.Component {
     const token = AuthServices.getAuthToken();
     try {
       await axios.put(
-        `http://localhost:3000/profile/my-books`,
+        `/profile/my-books`,
         { book },
         {
           headers: {
@@ -25,6 +26,7 @@ class BookCard extends React.Component {
           },
         }
       );
+      this.setState({ bookAdded: true });
     } catch (err) {
       alert(err.response.data);
     }
@@ -33,7 +35,7 @@ class BookCard extends React.Component {
   async handleRemoveBook(book) {
     const token = AuthServices.getAuthToken();
     try {
-      await axios.delete(`http://localhost:3000/profile/my-books/${book}`, {
+      await axios.delete(`/profile/my-books/${book}`, {
         headers: {
           'x-auth-token': token,
         },
@@ -47,6 +49,11 @@ class BookCard extends React.Component {
 
   render() {
     let button;
+    let addBook = 'Add to books';
+
+    if (this.state.bookAdded) {
+      addBook = <i className="fas fa-check"></i>
+    }
 
     if (this.state.bookRemoved) {
       return <Redirect to='/dashboard' />;
@@ -56,10 +63,9 @@ class BookCard extends React.Component {
       button = (
         <button
           type='button'
-          onClick={() => this.handleAddBook(this.props.data._id)}
+          onClick={(e) => this.handleAddBook(this.props.data._id)}
           className='btn btn-link mt-auto'
-        >
-          Add to books
+        >{addBook}
         </button>
       );
     }

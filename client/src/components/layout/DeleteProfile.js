@@ -18,7 +18,7 @@ class DeleteProfile extends React.Component {
     try {
       const token = AuthServices.getAuthToken();
       await axios.delete(
-        `http://localhost:3000/users/remove-user/${this.props.user}`,
+        `/users/remove-user/${this.props.user}`,
         {
           headers: {
             'x-auth-token': token,

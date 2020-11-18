@@ -13,7 +13,7 @@ class Landing extends React.Component {
 
   async getLibrary() {
     try {
-      const res = await axios.get('http://localhost:3000/library');
+      const res = await axios.get('/library');
       this.setLibrary(res.data);
     } catch (err) {
       console.log(err.message);
@@ -29,10 +29,20 @@ class Landing extends React.Component {
   }
 
   render() {
+    let signUpPrompt;
+
+    if (!this.props.loggedIn) {
+      signUpPrompt = (
+        <h2 className='mt-5 text-center text-muted font-weight-light'>
+          Sign up and add books to your collection!
+        </h2>
+      );
+    }
+
     return (
       <div className='container'>
-        <h1 className='mt-5 text-center'>Welcome to the BookShelf</h1>
-
+        <h1 className='mt-5 text-center display-4'>Welcome to the BookShelf</h1>
+        {signUpPrompt};
         <Search setLibrary={this.setLibrary} getLibrary={this.getLibrary} />
         <div className='row'>
           {this.state.library.map((element, i) => {
