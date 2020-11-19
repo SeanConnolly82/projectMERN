@@ -1,15 +1,17 @@
 import axios from 'axios';
+import handleApiError from './error-handler'
 
 const register = async (name, email, password) => {
   try {
     await axios.post('/users/register', {
       name,
       email,
-      password,
+      password
     });
-    return await login(email, password);
+    // register will call login to give user full access
+    return login(email, password);
   } catch (err) {
-    console.log(err);
+    handleApiError(err);
   }
 };
 
@@ -19,14 +21,15 @@ const login = async (email, password) => {
       email,
       password,
     });
-
-    if (res.data) {
+    // add user and token to local storage and return true
+    if (res.data.token) {
       localStorage.setItem('user', res.data.user);
       localStorage.setItem('token', res.data.token);
+      return true;
     }
-    return 'Success';
+    
   } catch (err) {
-    console.log(err);
+    handleApiError(err);
   }
 };
 
@@ -45,13 +48,13 @@ const changePassword = async (password, newPassword) => {
         },
       }
     );
-
-    if (res.data) return 'Success';
+    if (res.data.msg) return true;
   } catch (err) {
-    console.log(err);
+    handleApiError(err);
   }
 };
 
+// clear local storage on log out
 const logout = () => {
   localStorage.clear();
 };
@@ -64,4 +67,4 @@ const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
-export default { register, logout, login, changePassword, getCurrentUser, getAuthToken };
+export { register, login,  changePassword, logout, getCurrentUser, getAuthToken };

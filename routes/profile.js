@@ -9,6 +9,7 @@ const ApiError = require('../error/ApiError');
 
 const profileRouter = express.Router();
 
+// function to get the index of a particular book in the profile books collection
 const getBookIndex = (arrBooks, bookId) => {
   return arrBooks.map((item) => item._id).indexOf(bookId);
 };
@@ -22,6 +23,7 @@ profileRouter.post(
   [
     auth,
     [
+      // validation checks
       check('about', 'Please enter something about yourself!').not().isEmpty(),
       check('favouriteBook', 'Please enter your favourite book!')
         .not()
@@ -36,10 +38,11 @@ profileRouter.post(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
+    // check for errors in the validation results
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    // get profile attributes from the request body
     const {
       about,
       favouriteBook,
@@ -49,6 +52,7 @@ profileRouter.post(
     } = req.body;
     const user = req.user.id;
 
+    // create profile object
     const profileFields = {
       user,
       about,
@@ -64,7 +68,7 @@ profileRouter.post(
         next(ApiError.badRequest('Profile already exists'));
         return;
       }
-      // Create new
+      // save new profile to MongoDB
       profile = new Profile(profileFields);
       await profile.save();
       res.json(profile);
@@ -79,6 +83,7 @@ profileRouter.post(
 // @ access   Private
 
 profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
+  // get profile attributes from the request body
   const {
     about,
     favouriteBook,
@@ -87,10 +92,11 @@ profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
     image,
   } = req.body;
 
+  // get the existing saved profile
   const profile = req.profile;
 
   profile.user = profile.user.id;
-  // update profile for truthy values
+  // update profile where new data has been provided in the request body
   profile.about = about ? about : profile.about;
   profile.favouriteBook = favouriteBook ? favouriteBook : profile.favouriteBook;
   profile.favouriteAuthor = favouriteAuthor
@@ -186,23 +192,23 @@ profileRouter.delete(
 // @ desc     Upload a profile picture
 // @ access   Private
 
-profileRouter.put(
-  '/image-upload/:user_id',
-  [auth, findProfile],
-  async (req, res, next) => {
-    try {
-      const profile = req.profile;
-      const imageBuffer = new Buffer.from(req.body.file, 'base64');
-      const imageFileType = req.body.fileType;
-      profile.image = imageBuffer;
-      profile.imageFileType = imageFileType;
+// profileRouter.put(
+//   '/image-upload/:user_id',
+//   [auth, findProfile],
+//   async (req, res, next) => {
+//     try {
+//       const profile = req.profile;
+//       const imageBuffer = new Buffer.from(req.body.file, 'base64');
+//       const imageFileType = req.body.fileType;
+//       profile.image = imageBuffer;
+//       profile.imageFileType = imageFileType;
 
-      await profile.save();
-      res.json({ msg: 'Upload sucessful' });
-    } catch (err) {
-      next(err);
-    }
-  }
-);
+//       await profile.save();
+//       res.json({ msg: 'Upload sucessful' });
+//     } catch (err) {
+//       next(err);
+//     }
+//   }
+// );
 
 module.exports = profileRouter;

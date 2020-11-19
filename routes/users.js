@@ -9,11 +9,10 @@ const Profile = require('../models/Profile');
 const ApiError = require('../error/ApiError');
 
 const auth = require('../middleware/auth');
-const findProfile = require('../middleware/profile');
 
 const userRouter = express.Router();
 
-// Get a JWT token for user authentication
+// get a JWT token for user authentication
 const getJwtToken = (user) => {
   const payload = {
     user: {
@@ -30,11 +29,13 @@ const getJwtToken = (user) => {
 userRouter.post(
   '/login',
   [
+    // validation checks
     check('email', 'Please enter a valid email').isEmail(),
     check('password', 'Please enter a password').not().isEmpty(),
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
+    // check for errors in the validation results
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -49,6 +50,7 @@ userRouter.post(
       }
 
       let token = getJwtToken(user);
+      // respponse object includes the user id and auth token
       res.json({ user: user.id, token: token });
     } catch (err) {
       next(err);
@@ -63,6 +65,7 @@ userRouter.post(
 userRouter.post(
   '/register',
   [
+    // validation checks
     check('name', 'Please enter a username').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
     check(
@@ -72,6 +75,7 @@ userRouter.post(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
+    // check for errors in the validation results
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -92,6 +96,7 @@ userRouter.post(
       await user.save();
 
       let token = getJwtToken(user);
+      // respponse object includes the user id and auth token
       res.json({ user: user.id, token: token });
     } catch (err) {
       next(err);
@@ -105,6 +110,7 @@ userRouter.post(
 
 userRouter.delete('/remove-user/:user_id', [auth], async (req, res, next) => {
   try {
+    // delete user and profile from db
     await User.findOneAndDelete({ _id: req.params.user_id });
     await Profile.findOneAndDelete({ user: req.params.user_id });
     res.json({ msg: 'User and profile deleted' });
@@ -122,15 +128,17 @@ userRouter.put(
   [
     auth,
     [
-      check('password', 'Please enter a password').not().isEmpty(),
+      // validation checks
+      check('password', 'Please enter your current password').not().isEmpty(),
       check(
         'newPassword',
-        'Please enter a password with 6 or more characters'
+        'Please enter a new password with 6 or more characters'
       ).isLength({ min: 6 }),
     ],
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
+    // check for errors in the validation results
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -146,7 +154,7 @@ userRouter.put(
         next(ApiError.notAuthorised('Invalid Password'));
         return;
       }
-
+      // update password
       await User.findOneAndUpdate(
         { _id: user.id },
         { $set: { password: hashedNewPassword } }

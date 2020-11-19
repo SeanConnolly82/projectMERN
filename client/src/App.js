@@ -9,28 +9,33 @@ import Dashboard from './components/layout/Dashboard';
 import EditProfile from './components/layout/EditProfile';
 import ChangePassword from './components/auth/ChangePassword';
 import DeleteProfile from './components/layout/DeleteProfile';
-import AuthServices from './services/auth-service';
+import FourZeroFour from './components/layout/FourZeroFour';
+
+import { getCurrentUser } from './services/auth-service';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      user: AuthServices.getCurrentUser(),
-      loggedIn: Boolean(AuthServices.getCurrentUser()),
+      user: getCurrentUser(),
+      loggedIn: Boolean(getCurrentUser()),
       profile: null,
     };
   }
 
+  // set user will get the user from local storage
   setUser = () => {
-    const user = AuthServices.getCurrentUser();
+    const user = getCurrentUser();
     this.setState({ user });
   };
 
+  // user profile is held in state
   setProfile = (profile) => {
     this.setState({ profile });
   };
 
+  // used to restrict URL access
   setLoggedIn = (loggedIn) => {
     this.setState({ loggedIn });
   };
@@ -98,13 +103,9 @@ class App extends Component {
             )}
           </Route>
           <Route exact path='/change-password'>
-            {this.state.loggedIn ? (
-              <ChangePassword/>
-            ) : (
-              <Redirect to='/' />
-            )}
+            {this.state.loggedIn ? <ChangePassword /> : <Redirect to='/' />}
           </Route>
-          <Route exact path='/delete-profile'>
+          <Route exact path='/delete-account'>
             {this.state.loggedIn ? (
               <DeleteProfile
                 user={this.state.user}
@@ -116,6 +117,7 @@ class App extends Component {
               <Redirect to='/' />
             )}
           </Route>
+          <Route component={FourZeroFour} />
         </Switch>
       </BrowserRouter>
     );

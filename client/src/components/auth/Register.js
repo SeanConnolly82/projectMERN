@@ -1,28 +1,26 @@
 import React from 'react';
-import AuthServices from '../../services/auth-service';
+import { register } from '../../services/auth-service';
 import { Redirect } from 'react-router-dom';
-
 
 class Register extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       formData: { name: null, email: null, password: null, password2: null },
-      registered: null,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   async handleSubmit(e) {
+    e.preventDefault();
     const { name, email, password, password2 } = this.state;
     if (password !== password2) {
-      console.log("Passwords don't match");
-      return; 
+      alert("Passwords don't match");
+      return;
     }
-    e.preventDefault();
-    const registerResult = await AuthServices.register(name, email, password);
-    if (registerResult === "Success") {
-      this.setState({ registered: true });
+    const registerResult = await register(name, email, password);
+    // set user and loggedIn if registration is successful
+    if (registerResult) {
       this.props.setUser();
       this.props.setLoggedIn(true);
     }

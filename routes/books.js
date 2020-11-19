@@ -28,6 +28,7 @@ bookRouter.get('/', async (req, res, next) => {
 bookRouter.get('/search', async (req, res, next) => {
   let criteria = req.query.keyword;
   try {
+    // search for the keyword in the name, author and description
     const books = await Book.find({
       $or: [
         { name: { $regex: criteria, $options: 'i' } },

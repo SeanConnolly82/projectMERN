@@ -1,39 +1,41 @@
 import React from 'react';
 import axios from 'axios';
-import AuthServices from '../../services/auth-service';
 import { Redirect } from 'react-router-dom';
+
+import { getAuthToken } from '../../services/auth-service';
+import handleApiError from '../../services/error-handler';
 
 class BookCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       bookAdded: null,
-      bookRemoved: null
+      bookRemoved: null,
     };
     this.handleAddBook = this.handleAddBook.bind(this);
     this.handleRemoveBook = this.handleRemoveBook.bind(this);
   }
 
   async handleAddBook(book) {
-    const token = AuthServices.getAuthToken();
+    const token = getAuthToken();
     try {
       await axios.put(
         `/profile/my-books`,
         { book },
         {
           headers: {
-            'x-auth-token': token
+            'x-auth-token': token,
           },
         }
       );
       this.setState({ bookAdded: true });
     } catch (err) {
-      alert(err.response.data);
+      handleApiError(err);
     }
   }
 
   async handleRemoveBook(book) {
-    const token = AuthServices.getAuthToken();
+    const token = getAuthToken();
     try {
       await axios.delete(`/profile/my-books/${book}`, {
         headers: {
@@ -41,9 +43,10 @@ class BookCard extends React.Component {
         },
       });
       this.setState({ bookRemoved: true });
+      // set the book count for the dashboard view
       this.props.setBookCount();
     } catch (err) {
-      console.log(err);
+      handleApiError(err);
     }
   }
 
@@ -51,25 +54,30 @@ class BookCard extends React.Component {
     let button;
     let addBook = 'Add to books';
 
+    // add a tick mark when book is added
     if (this.state.bookAdded) {
-      addBook = <i className="fas fa-check"></i>
+      addBook = <i className='fas fa-check'></i>;
     }
 
+    // re-render dashboard when a book is removed
     if (this.state.bookRemoved) {
       return <Redirect to='/dashboard' />;
     }
 
-    if (this.props.loggedIn) {
+    // button view visible when a user is logged in
+    if (!this.props.profileView && this.props.loggedIn) {
       button = (
         <button
           type='button'
-          onClick={(e) => this.handleAddBook(this.props.data._id)}
+          onClick={() => this.handleAddBook(this.props.data._id)}
           className='btn btn-link mt-auto'
-        >{addBook}
+        >
+          {addBook}
         </button>
       );
     }
 
+    // button view visible on profile page
     if (this.props.profileView) {
       button = (
         <button

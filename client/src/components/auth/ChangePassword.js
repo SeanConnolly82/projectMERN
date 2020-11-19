@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthServices from '../../services/auth-service';
+import { changePassword } from '../../services/auth-service';
 import { Redirect } from 'react-router-dom';
 
 class ChangePassword extends React.Component {
@@ -20,17 +20,12 @@ class ChangePassword extends React.Component {
     e.preventDefault();
     const { password, newPassword, confirmNewPassword } = this.state;
     if (newPassword !== confirmNewPassword) {
-      console.log("Passwords don't mnatch");
+      alert("Passwords don't match");
       return;
     }
-
-    try {
-      let result = await AuthServices.changePassword(password, newPassword);
-      if (result === 'Success') {
-        this.setState({ passwordChanged: true });
-      }
-    } catch (err) {
-      console.log(err);
+    const result = await changePassword(password, newPassword);
+    if (result) {
+      this.setState({ passwordChanged: true });
     }
   }
 

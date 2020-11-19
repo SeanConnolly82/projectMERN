@@ -2,8 +2,10 @@ import React from 'react';
 import axios from 'axios';
 import Image from '../content/Image';
 import BookCard from '../content/BookCard';
-import AuthServices from '../../services/auth-service';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
+
+import { getAuthToken } from '../../services/auth-service';
+import handleApiError from '../../services/error-handler';
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -11,40 +13,26 @@ class Dashboard extends React.Component {
     this.state = {
       isLoading: true,
       profileView: true,
-      editProfile: null,
-      changePassword: null,
-      deleteProfile: null,
       numberOfBooks: null,
     };
-    this.setEditProfile = this.setEditProfile.bind(this);
-    this.setChangePassword = this.setChangePassword.bind(this);
-    this.setDeleteProfile = this.setDeleteProfile.bind(this);
   }
 
   async getCurrentUserProfile() {
     try {
-      const token = AuthServices.getAuthToken();
-      const res = await axios.get(
-        `/profile/${this.props.user}`,
-        {
-          headers: {
-            'x-auth-token': token,
-          },
-        }
-      );
+      const token = getAuthToken();
+      const res = await axios.get(`/profile/${this.props.user}`, {
+        headers: {
+          'x-auth-token': token,
+        },
+      });
       this.props.setProfile(res.data.profile);
       this.setState({
-        isLoading: false,
-        profileView: true,
         numberOfBooks: this.props.profile.booksCollection.length,
       });
     } catch (err) {
-      //if (err.response.data.errors[0].msg === 'Profile not found') {
+      handleApiError(err);
+    } finally {
       this.setState({ isLoading: false });
-      //  });
-      //} else {
-      console.log(err);
-      //}
     }
   }
 
@@ -52,72 +40,62 @@ class Dashboard extends React.Component {
     this.setState({ numberOfBooks: this.state.numberOfBooks - 1 });
   };
 
-  setEditProfile() {
-    this.setState({ editProfile: true });
-  }
-
-  setChangePassword() {
-    this.setState({ changePassword: true });
-  }
-
-  setDeleteProfile() {
-    this.setState({ deleteProfile: true });
-  }
-
   componentDidMount() {
     this.getCurrentUserProfile();
   }
 
   render() {
-    let profile;
+    let profile = this.props.profile;
+    let booksHeader;
 
-    if (this.props.profile) {
-      profile = this.props.profile;
+    if (this.state.numberOfBooks) {
+      booksHeader = <h2 className='mt-5'>My Books Collection</h2>;
     }
 
     if (!this.state.isLoading && !profile) {
       return <Redirect to='/edit-profile' />;
     }
 
-    if (this.state.editProfile) {
-      return <Redirect to='/edit-profile' />;
-    }
-
-    if (this.state.changePassword) {
-      return <Redirect to='/change-password' />;
-    }
-
-    if (this.state.deleteProfile) {
-      return <Redirect to='/delete-profile' />;
-    }
-    if (!this.state.isLoading && profile) {
+    if (profile) {
       return (
         <div className='container'>
           <h1 className='mt-5 mb-5 text-center'>{`Welcome ${profile.user.name}`}</h1>
           <div className='row mb-5'>
             <div className='col-md-5 d-flex flex-column justify-content-around'>
               <Image profile={this.props.profile}></Image>
-              <button
-                type='button'
-                className='btn btn-primary btn-block mt-4'
-                onClick={this.setEditProfile}
+              <Link
+                to='/edit-profile'
+                className='mt-4'
+                style={{ textDecoration: 'none' }}
               >
-                Edit Profile
-              </button>
-              <button
-                type='button'
-                className='btn btn-outline-primary btn-block'
-                onClick={this.setChangePassword}
+                <button type='button' className='btn btn-primary btn-block'>
+                  Edit Profile
+                </button>
+              </Link>
+              <Link
+                to='/change-password'
+                className='mt-4'
+                style={{ textDecoration: 'none' }}
               >
-                Change Password
-              </button>
-              <button
-                type='button'
-                className='btn btn-outline-primary btn-block mb-3'
-                onClick={this.setDeleteProfile}
+                <button
+                  type='button'
+                  className='btn btn-outline-primary btn-block'
+                >
+                  Change Password
+                </button>
+              </Link>
+              <Link
+                to='/delete-account'
+                className='mt-2 mb-3'
+                style={{ textDecoration: 'none' }}
               >
-                Delete Profile
-              </button>
+                <button
+                  type='button'
+                  className='btn btn-outline-primary btn-block'
+                >
+                  Delete Account
+                </button>
+              </Link>
             </div>
             <div className='col-md-7 d-flex flex-column justify-content-around'>
               <h3>About me</h3>
@@ -130,9 +108,7 @@ class Dashboard extends React.Component {
               <p>{profile.favouriteGenre}</p>
             </div>
           </div>
-          {this.state.numberOfBooks ? (
-            <h2 className='mt-5'>My Books Collection</h2>
-          ) : null}
+          {booksHeader}
           <div className='row mb-5'>
             {profile.booksCollection.map((element, i) => {
               return (

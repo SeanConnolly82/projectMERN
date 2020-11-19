@@ -1,54 +1,40 @@
 import React from 'react';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
-import AuthServices from '../../services/auth-service';
+import { Redirect, Link } from 'react-router-dom';
+
+import { getAuthToken, logout } from '../../services/auth-service';
+import handleApiError from '../../services/error-handler';
 
 class DeleteProfile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      noDelete: null,
-      userDeleted: null
+      userDeleted: null,
     };
     this.handleClickDelete = this.handleClickDelete.bind(this);
-    this.handleClickNo = this.handleClickNo.bind(this);
   }
 
-  async deleteProfile() {
+  async handleClickDelete() {
     try {
-      const token = AuthServices.getAuthToken();
-      await axios.delete(
-        `/users/remove-user/${this.props.user}`,
-        {
-          headers: {
-            'x-auth-token': token,
-          },
-        }
-      );
-      AuthServices.logout();
+      const token = getAuthToken();
+      await axios.delete(`/users/remove-user/${this.props.user}`, {
+        headers: {
+          'x-auth-token': token,
+        },
+      });
+      logout();
       this.props.setUser();
       this.props.setLoggedIn(false);
       this.props.setProfile(null);
       this.setState({ userDeleted: true });
     } catch (err) {
-      console.log(err.message);
+      handleApiError(err);
     }
-  }
-
-  handleClickDelete() {
-    this.deleteProfile();
-  }
-
-  handleClickNo() {
-    this.setState({ noDelete: true });
   }
 
   render() {
     if (this.state.userDeleted) {
       return <Redirect to='/'></Redirect>;
-    }
-    if (this.state.noDelete) {
-      return <Redirect to='/dashboard'></Redirect>;
     }
 
     return (
@@ -58,12 +44,15 @@ class DeleteProfile extends React.Component {
         </h1>
         <div className='row justify-content-center'>
           <div className='col-md-4'>
-            <button
-              className='btn btn-primary btn-block mt-5'
-              onClick={this.handleClickNo}
+            <Link
+              to='/edit-profile'
+              className='mt-4'
+              style={{ textDecoration: 'none' }}
             >
-              No way, never!
-            </button>
+              <button className='btn btn-primary btn-block mt-5'>
+                No way, never!
+              </button>
+            </Link>
             <button
               className='btn btn-outline-primary btn-block mt-3'
               onClick={this.handleClickDelete}

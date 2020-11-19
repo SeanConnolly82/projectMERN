@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import AuthService from '../../services/auth-service'
 
+import { logout } from '../../services/auth-service';
 
 class Navbar extends React.Component {
   constructor(props) {
@@ -11,7 +11,7 @@ class Navbar extends React.Component {
   }
 
   handleLogOut() {
-    AuthService.logout();
+    logout();
     this.props.setUser();
     this.props.setLoggedIn(false);
     this.props.setProfile(null);
@@ -23,17 +23,13 @@ class Navbar extends React.Component {
         <ul className='navbar-nav ml-auto'>
           <li className='ml-2 nav-item'>
             <Link to='/dashboard' className='nav-link'>
-              <i className="fas fa-user mr-2"></i>
+              <i className='fas fa-user mr-2'></i>
               MyProfile
             </Link>
           </li>
           <li className='ml-2 nav-item'>
-            <Link
-              to='/'
-              className='nav-link'
-              onClick={this.handleLogOut}
-            >
-              <i className="fas fa-sign-out-alt mr-2"></i>
+            <Link to='/' className='nav-link' onClick={this.handleLogOut}>
+              <i className='fas fa-sign-out-alt mr-2'></i>
               Logout
             </Link>
           </li>
@@ -46,7 +42,7 @@ class Navbar extends React.Component {
         <ul className='navbar-nav ml-auto'>
           <li className='ml-2 nav-item'>
             <Link to='/login' className='nav-link'>
-            Login
+              Login
             </Link>
           </li>
           <li className='ml-2 nav-item'>
@@ -61,7 +57,7 @@ class Navbar extends React.Component {
     return (
       <nav className='navbar sticky-top navbar-expand-md navbar-dark bg-dark'>
         <Link to='/' className='navbar-brand'>
-          <i className="fas fa-book-reader mr-2"></i>
+          <i className='fas fa-book-reader mr-2'></i>
           The BookShelf
         </Link>
         <button

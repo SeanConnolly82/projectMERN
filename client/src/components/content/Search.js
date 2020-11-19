@@ -1,6 +1,8 @@
 import { Component } from 'react';
 import axios from 'axios';
 
+import handleApiError from '../../services/error-handler';
+
 class Search extends Component {
   constructor(props) {
     super(props);
@@ -13,12 +15,12 @@ class Search extends Component {
 
   async handleSearch() {
     try {
-      const res = await axios.get('http://localhost:3000/library/search', {
+      const res = await axios.get('/library/search', {
         params: { keyword: this.state.keyword },
       });
       this.props.setLibrary(res.data);
     } catch (err) {
-      console.log(err);
+      handleApiError(err);
     }
   }
 

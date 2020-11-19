@@ -1,7 +1,6 @@
 import React from 'react';
-import AuthServices from '../../services/auth-service';
+import { login } from '../../services/auth-service';
 import { Redirect } from 'react-router-dom';
-
 
 class Login extends React.Component {
   constructor(props) {
@@ -15,9 +14,10 @@ class Login extends React.Component {
   async handleSubmit(e) {
     e.preventDefault();
     const { email, password } = this.state;
-    const loginResult = await AuthServices.login(email, password);
-    if (loginResult === 'Success') {
-      this.props.setUser()
+    const loginResult = await login(email, password);
+    // set user and loggedIn if registration is successful
+    if (loginResult) {
+      this.props.setUser();
       this.props.setLoggedIn(true);
     }
   }

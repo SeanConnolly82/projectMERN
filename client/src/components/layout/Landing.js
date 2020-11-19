@@ -1,7 +1,10 @@
 import React from 'react';
 import axios from 'axios';
+
 import BookCard from '../content/BookCard';
 import Search from '../content/Search';
+
+import handleApiError from '../../services/error-handler';
 
 class Landing extends React.Component {
   constructor(props) {
@@ -16,7 +19,7 @@ class Landing extends React.Component {
       const res = await axios.get('/library');
       this.setLibrary(res.data);
     } catch (err) {
-      console.log(err.message);
+      handleApiError(err);
     }
   }
 
@@ -31,6 +34,7 @@ class Landing extends React.Component {
   render() {
     let signUpPrompt;
 
+    // add a sign up prompt if not logged in
     if (!this.props.loggedIn) {
       signUpPrompt = (
         <h2 className='mt-5 text-center text-muted font-weight-light'>
