@@ -13,7 +13,7 @@ class Dashboard extends React.Component {
     this.state = {
       isLoading: true,
       profileView: true,
-      numberOfBooks: null,
+      library: [],
     };
   }
 
@@ -26,9 +26,7 @@ class Dashboard extends React.Component {
         },
       });
       this.props.setProfile(res.data.profile);
-      this.setState({
-        numberOfBooks: this.props.profile.booksCollection.length,
-      });
+      this.setLibrary(res.data.profile.booksCollection);
     } catch (err) {
       handleApiError(err);
     } finally {
@@ -36,8 +34,8 @@ class Dashboard extends React.Component {
     }
   }
 
-  setBookCount = () => {
-    this.setState({ numberOfBooks: this.state.numberOfBooks - 1 });
+  setLibrary = (library) => {
+    this.setState({ library });
   };
 
   componentDidMount() {
@@ -48,12 +46,12 @@ class Dashboard extends React.Component {
     let profile = this.props.profile;
     let booksHeader;
 
-    if (this.state.numberOfBooks) {
-      booksHeader = <h2 className='mt-5'>My Books Collection</h2>;
-    }
-
     if (!this.state.isLoading && !profile) {
       return <Redirect to='/edit-profile' />;
+    }
+
+    if (this.state.library.length !== 0) {
+      booksHeader = <h2 className='mt-5'>My Books Collection</h2>;
     }
 
     if (profile) {
@@ -63,20 +61,12 @@ class Dashboard extends React.Component {
           <div className='row mb-5'>
             <div className='col-md-5 d-flex flex-column justify-content-around'>
               <Image profile={this.props.profile}></Image>
-              <Link
-                to='/edit-profile'
-                className='mt-4'
-                style={{ textDecoration: 'none' }}
-              >
+              <Link to='/edit-profile' className='mt-4'>
                 <button type='button' className='btn btn-primary btn-block'>
                   Edit Profile
                 </button>
               </Link>
-              <Link
-                to='/change-password'
-                className='mt-4'
-                style={{ textDecoration: 'none' }}
-              >
+              <Link to='/change-password' className='mt-4'>
                 <button
                   type='button'
                   className='btn btn-outline-primary btn-block'
@@ -84,11 +74,7 @@ class Dashboard extends React.Component {
                   Change Password
                 </button>
               </Link>
-              <Link
-                to='/delete-account'
-                className='mt-2 mb-3'
-                style={{ textDecoration: 'none' }}
-              >
+              <Link to='/delete-account' className='mt-2 mb-3'>
                 <button
                   type='button'
                   className='btn btn-outline-primary btn-block'
@@ -100,23 +86,23 @@ class Dashboard extends React.Component {
             <div className='col-md-7 d-flex flex-column justify-content-around'>
               <h3>About me</h3>
               <p>{profile.about}</p>
-              <h3>Favourite Book</h3>
+              <h4>Favourite Book</h4>
               <p>{profile.favouriteBook}</p>
-              <h3>Favourite Author</h3>
+              <h4>Favourite Author</h4>
               <p>{profile.favouriteAuthor}</p>
-              <h3>Favourite Genre</h3>
+              <h4>Favourite Genre</h4>
               <p>{profile.favouriteGenre}</p>
             </div>
           </div>
           {booksHeader}
           <div className='row mb-5'>
-            {profile.booksCollection.map((element, i) => {
+            {this.state.library.map((element, i) => {
               return (
                 <BookCard
                   key={i}
                   data={element}
                   profileView={this.state.profileView}
-                  setBookCount={this.setBookCount}
+                  setLibrary={this.setLibrary}
                 />
               );
             })}

@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
 
 import { getAuthToken } from '../../services/auth-service';
 import handleApiError from '../../services/error-handler';
@@ -37,14 +36,13 @@ class BookCard extends React.Component {
   async handleRemoveBook(book) {
     const token = getAuthToken();
     try {
-      await axios.delete(`/profile/my-books/${book}`, {
+      let res = await axios.delete(`/profile/my-books/${book}`, {
         headers: {
           'x-auth-token': token,
         },
       });
-      this.setState({ bookRemoved: true });
-      // set the book count for the dashboard view
-      this.props.setBookCount();
+      // update the library for the dashboard view
+      this.props.setLibrary(res.data.books);
     } catch (err) {
       handleApiError(err);
     }
@@ -57,11 +55,6 @@ class BookCard extends React.Component {
     // add a tick mark when book is added
     if (this.state.bookAdded) {
       addBook = <i className='fas fa-check'></i>;
-    }
-
-    // re-render dashboard when a book is removed
-    if (this.state.bookRemoved) {
-      return <Redirect to='/dashboard' />;
     }
 
     // button view visible when a user is logged in

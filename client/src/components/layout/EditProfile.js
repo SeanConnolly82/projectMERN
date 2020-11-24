@@ -127,7 +127,7 @@ class EditProfile extends Component {
 
     return (
       <div className='container'>
-        <h1 className='mt-5 mb-5 text-center'>{greeting}</h1>
+        <h2 className='mt-5 mb-5 text-center'>{greeting}</h2>
         <div className='row mb-5'>
           <div className='col-md-5 d-flex flex-column justify-content-around'>
             <Uploader setImage={this.setImage} profile={this.props.profile} />
@@ -145,7 +145,7 @@ class EditProfile extends Component {
               />
             </div>
             <div className='form-group'>
-              <h3>Favourite Book</h3>
+              <h4>Favourite Book</h4>
               <input
                 type='about'
                 className='form-control'
@@ -157,7 +157,7 @@ class EditProfile extends Component {
               />
             </div>
             <div className='form-group'>
-              <h3>Favourite Author</h3>
+              <h4>Favourite Author</h4>
               <input
                 type='about'
                 className='form-control'
@@ -169,7 +169,7 @@ class EditProfile extends Component {
               />
             </div>
             <div className='form-group'>
-              <h3>Favourite Genre</h3>
+              <h4>Favourite Genre</h4>
               <input
                 type='about'
                 className='form-control'

@@ -6,7 +6,7 @@ const ApiError = require('../error/ApiError');
    object. */
 
 const findProfile = async (req, res, next) => {
-  const msg = 'Profile not found';
+  const msg = 'Profile not set up';
   try {
     // The user id is provided via the request params or the request body
     const user_id = req.params.user_id || req.user.id;

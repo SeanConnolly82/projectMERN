@@ -167,9 +167,4 @@ userRouter.put(
   }
 );
 
-// @ TODO:     nice to have!
-// @ route
-// @ desc     Reset password
-// @ access   Public
-
 module.exports = userRouter;

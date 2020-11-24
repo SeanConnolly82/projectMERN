@@ -48,7 +48,7 @@ profileRouter.post(
       favouriteBook,
       favouriteAuthor,
       favouriteGenre,
-      image
+      image,
     } = req.body;
     const user = req.user.id;
 
@@ -59,7 +59,7 @@ profileRouter.post(
       favouriteBook,
       favouriteAuthor,
       favouriteGenre,
-      image
+      image,
     };
 
     try {
@@ -120,7 +120,7 @@ profileRouter.put('/', [auth, findProfile], async (req, res, next) => {
   }
 });
 
-// @ route    GET /profile
+// @ route    GET /profile/:user_id
 // @ desc     Get a profile
 // @ access   Private
 
@@ -152,7 +152,7 @@ profileRouter.put(
       }
       profile.booksCollection.unshift(book);
       await profile.save();
-      res.json(profile);
+      res.json({ msg: 'Book successfully added' });
     } catch (err) {
       next(err);
     }
@@ -169,10 +169,8 @@ profileRouter.delete(
   async (req, res, next) => {
     try {
       const profile = req.profile;
-      const bookIndex = getBookIndex(
-        profile.booksCollection,
-        req.params.book_id
-      );
+      const books = profile.booksCollection;
+      const bookIndex = getBookIndex(books, req.params.book_id);
 
       if (bookIndex !== -1) {
         profile.booksCollection.splice(bookIndex, 1);
@@ -181,7 +179,7 @@ profileRouter.delete(
         return;
       }
       await profile.save();
-      res.json(profile);
+      res.json({ books });
     } catch (err) {
       next(err);
     }

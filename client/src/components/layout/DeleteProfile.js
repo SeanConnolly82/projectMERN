@@ -47,7 +47,6 @@ class DeleteProfile extends React.Component {
             <Link
               to='/edit-profile'
               className='mt-4'
-              style={{ textDecoration: 'none' }}
             >
               <button className='btn btn-primary btn-block mt-5'>
                 No way, never!
@@ -57,7 +56,7 @@ class DeleteProfile extends React.Component {
               className='btn btn-outline-primary btn-block mt-3'
               onClick={this.handleClickDelete}
             >
-              Delete my Profile
+              Delete my Account
             </button>
           </div>
         </div>
