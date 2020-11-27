@@ -1,6 +1,4 @@
 # projectMERN
-Web Apps project in pursuit of MSc
-
 
 1. Install node modules in the root folder
 ```
@@ -11,7 +9,7 @@ npm install
 cd client
 npm install
 ```
-3. Start the API and React servers
+3. Start the API and React servers (from root folder)
 ```
 cd ..
 npm run dev
@@ -20,7 +18,7 @@ npm run dev
 ## User Guide
 
 **Notes**: 
-- Refreshing the brwoser will end the session by removing the user id and JWT web token from local storage.
+- Refreshing the browser will end the session by removing the user id and JWT web token from local storage.
 - Private routes require a JWT token for authentication. The front-end also blocks private URLs if there isn't a JWT token in local storage.
 - Errors are dispalyed as alerts by the browser.
 
@@ -36,9 +34,10 @@ npm run dev
     
 - Public
 
-- Search for books by keyword. Keywords will be returned from title, author and description. Click on 'Clear' to remove filter.
-- Visitors are prompted to sign up
-- Logging in allows users to 'Add to books' - their personal collection attached to their profile. When a book is added, the 'Add to books' button shows a tick mark. Trying to add a book again will display a message that 'Book is already added'.
+- Search for books by keyword. Books will be returned if the keyword is found in the title, author or description. Click on 'Clear' to remove filter.
+- The NavBar displays options to Login and Register
+- A message encourages visitors to sign up.
+- Logging in allows users to add books to their personal collection, which is attached to their profile, by clicking 'Add to books'. When a book is added, the 'Add to books' button updates to show a tick mark. Trying to add a book again will display a message that 'Book is already added'.
 
 ### Register
 
@@ -50,8 +49,13 @@ npm run dev
 
 - Public
 
-- Enter name, username, password, and confirm password. Password and confirm password are compared in the front-end. Validations with error response are provided by the API - no blanks, valid email, and minimum 6 characters for password.
-- Registering a user returns user id (for routing) and a JWT web token for authentication. Registering also logs in a user. Following registration, the user will be directed to the 'Edit Profile' page.
+- Enter name, username, password, and confirm password. 
+- Password and confirm password are compared in the front-end. An alert will display if they don't match.
+- Validations with error responses are implemented by the API - no blanks, valid email, and minimum 6 characters for password.
+- Passwords are hashed for secure storage.
+- Registering a user returns user id (for routing) and a JWT web token for authentication. 
+- Registering also logs in a user. 
+- Following registration, the user will be directed to the 'Edit Profile' page.
 
 ### Login
 
@@ -63,10 +67,12 @@ npm run dev
 
 - Public
 
-- Enter username and password. Validations with error response are provided by the API - no blanks, valid email. Username and password are validated against the stored values and a response of 'Invalid Credentials' is provided if validation fails. 
+- Enter username and password. 
+- Validations with error response are implemented by the API - no blanks, valid email. 
+- Username and password are validated against the stored values and a response of 'Invalid Credentials' is provided if validation fails. 
 - Succesful login redirects to the landing page, unless the user hasn't yet set up a profile, in which case they will be redirected to 'Edit Profile'.
-- Logginl in will update the Nav Bar to replace 'Login' and 'Register' with 'MyProfile' and 'Logout'.
-- The API returns user id (for routing) and a JWT web token for authentication that is saved in the browsers local storage. 
+- Logging in will update the Nav Bar and replace 'Login' and 'Register' with 'MyProfile' and 'Logout'.
+- The API returns user id (for routing) and a JWT web token for authentication. The user id and JWT token is saved in the browser's local storage. 
 
 ### Edit Profile
 
@@ -79,8 +85,8 @@ npm run dev
 
 - Private
 
-- Enter about, favourite book, favourite author, and favoutite genre. These are mandatory and are validated by the API for blanks, with error response if validation fails.
-- Uploading is profile pic is optional. A blank avatar will be displayed if a user chooses not to upload a profile picture. The profile picture uses the filepond library and stores the image in Mongo as a base64 string.
+- Enter about, favourite book, favourite author, and favoutite genre. These fields are mandatory and are validated by the API for blanks, with error responses if validation fails.
+- Uploading a profile picture is optional. A blank placeholder avatar will be displayed if a user chooses not to upload a profile picture. The profile picture uses the filepond library and stores the image in Mongo as a base64 string.
 - Existing users can also edit their profile. Their existing profile details will be set as the default values in the form inputs.
 - Updating your profile will redirect a user to their Dashboard.
 
@@ -109,10 +115,10 @@ npm run dev
 
 - Private
 
-- Enter current password, new password and confirm new password. The API validates for blanks and a minimum of 6 characters in the password.
-- The front end will check that the new password and confirm new password.
-- Error response are provided by all validations.
-- The API will also validate the hashes of the current password and stored password for the user before it updates the saved password to the new password.
+- Enter current password, new password and confirm new password. The API validates for blanks, and a minimum of 6 characters in the password.
+- The front end will check that the new password and confirm new password are a match.
+- Error responses are provided by all validations.
+- The API will also validate the hash value of the current password against the stored password for the user before it updates the saved password to the new password.
 
 ### Delete Account
 
