@@ -45,7 +45,7 @@ class DeleteProfile extends React.Component {
         <div className='row justify-content-center'>
           <div className='col-md-4'>
             <Link
-              to='/edit-profile'
+              to='/dashboard'
               className='mt-4'
             >
               <button className='btn btn-primary btn-block mt-5'>
