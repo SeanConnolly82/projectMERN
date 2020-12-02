@@ -12,7 +12,7 @@ npm install
 3. Start the API and React servers (from root folder)
 ```
 cd ..
-npm run dev
+npm start
 ```
 
 ## User Guide
@@ -20,7 +20,7 @@ npm run dev
 **Notes**: 
 - Refreshing the browser will end the session by removing the user id and JWT web token from local storage.
 - Private routes require a JWT token for authentication. The front-end also blocks private URLs if there isn't a JWT token in local storage.
-- Errors are dispalyed as alerts by the browser.
+- Errors are displayed as alerts by the browser.
 
 ### Landing Page
 
@@ -70,7 +70,7 @@ npm run dev
 - Enter username and password. 
 - Validations with error response are implemented by the API - no blanks, valid email. 
 - Username and password are validated against the stored values and a response of 'Invalid Credentials' is provided if validation fails. 
-- Succesful login redirects to the landing page, unless the user hasn't yet set up a profile, in which case they will be redirected to 'Edit Profile'.
+- Successful login redirects to the landing page, unless the user hasn't yet set up a profile, in which case they will be redirected to 'Edit Profile'.
 - Logging in will update the Nav Bar and replace 'Login' and 'Register' with 'MyProfile' and 'Logout'.
 - The API returns user id (for routing) and a JWT web token for authentication. The user id and JWT token is saved in the browser's local storage. 
 
@@ -85,7 +85,7 @@ npm run dev
 
 - Private
 
-- Enter about, favourite book, favourite author, and favoutite genre. These fields are mandatory and are validated by the API for blanks, with error responses if validation fails.
+- Enter about, favourite book, favourite author, and favourite genre. These fields are mandatory and are validated by the API for blanks, with error responses if validation fails.
 - Uploading a profile picture is optional. A blank placeholder avatar will be displayed if a user chooses not to upload a profile picture. The profile picture uses the filepond library and stores the image in Mongo as a base64 string.
 - Existing users can also edit their profile. Their existing profile details will be set as the default values in the form inputs.
 - Updating your profile will redirect a user to their Dashboard.
@@ -116,7 +116,7 @@ npm run dev
 - Private
 
 - Enter current password, new password and confirm new password. The API validates for blanks, and a minimum of 6 characters in the password.
-- The front end will check that the new password and confirm new password are a match.
+- The front-end will check that the new password and confirm new password are a match.
 - Error responses are provided by all validations.
 - The API will also validate the hash value of the current password against the stored password for the user before it updates the saved password to the new password.
 

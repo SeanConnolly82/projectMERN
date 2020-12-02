@@ -46,7 +46,7 @@ class Landing extends React.Component {
     return (
       <div className='container'>
         <h1 className='mt-5 text-center display-4'>Welcome to the BookShelf</h1>
-        {signUpPrompt};
+        {signUpPrompt}
         <Search setLibrary={this.setLibrary} getLibrary={this.getLibrary} />
         <div className='row'>
           {this.state.library.map((element, i) => {

@@ -84,7 +84,7 @@ class BookCard extends React.Component {
     }
 
     return (
-      <div className='card-deck col-md-6 col-lg-4 col-xl-3 py-2 mt-4'>
+      <div className='card-deck col-md-6 col-lg-4 col-xl-4 py-2 mt-4'>
         <div className='card text-center'>
           <div className='card-header'>{this.props.data.name}</div>
           <div className='card-body d-flex flex-column'>
